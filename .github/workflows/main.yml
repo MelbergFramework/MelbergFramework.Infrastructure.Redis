@@ -1,0 +1,38 @@
+name: Pack And Push
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Setup env
+      uses: jwulf/add-env-vars-action@master
+      with:
+        map: '{"vers": "6.2.${{ github.run_number }}</Version"}'
+    - name: show
+      run: echo $vers
+    - name: Find and Replace
+      uses: jacobtomlinson/gha-find-replace@master
+      with:
+        find: \d*\.\d*\.(\d*)\</Version
+        replace: ${{env.vers}}
+    - name: Prepare
+      run: mkdir output
+    - name: Pack 
+      run: dotnet pack -o output --configuration Release 
+    - name: Push
+      run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
