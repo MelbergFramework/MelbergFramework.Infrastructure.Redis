@@ -1,18 +1,11 @@
-using Demo.Infrastructure;
-using MelbergFramework.Infrastructure.Redis;
+using MelbergFramework.Application;
 
-var builder = WebApplication.CreateBuilder(args);
-
-RedisModule.LoadRedisRepository<ITestRepository, TestRepository, TestContext>(builder.Services);
-
-
-var app = builder.Build();
-
-await app.Services.GetRequiredService<ITestRepository>().Demo();
-
-app.MapGet("/", () => "Hello World!");
-
-
-
-
-app.Run();
+namespace Demo;
+internal class Program
+{
+    private static async Task Main(string[] args)
+    {
+        var app = MelbergHost
+                .CreateHost<AppRegistrator>();
+    }
+}

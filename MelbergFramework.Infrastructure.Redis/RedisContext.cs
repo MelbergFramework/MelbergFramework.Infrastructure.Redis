@@ -1,20 +1,16 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
 
 namespace MelbergFramework.Infrastructure.Redis;
-public class RedisContext
+public class RedisContext 
 {
     private ConnectionMultiplexer _connection;
-    public RedisContext(IConfiguration provider)
+    public RedisContext(
+            IOptions<RedisConnectionOptions<RedisContext>> options,
+            IConnector connector)
     {
-        string connectionString = provider.GetConnectionString(this.GetType().Name);
-        if(string.IsNullOrEmpty(connectionString))
-        {
-            throw new Exception($"Connection string for {this.GetType().Name} is missing");
-        }
-        _connection = ConnectionMultiplexer.Connect(connectionString);
-        
+        _connection = connector.GetDatabaseAsync(options.Value.Uri);
     }
 
     public IDatabaseAsync DB => _connection.GetDatabase();
