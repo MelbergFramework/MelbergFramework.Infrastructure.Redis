@@ -4,12 +4,27 @@ namespace MelbergFramework.Infrastructure.Redis;
 
 public interface IConnector
 {
-    ConnectionMultiplexer GetDatabaseAsync(string connectionString);
+    IDatabaseAsync GetDatabaseAsync(string connectionString);
+    void ConnectToDatabase(string connectionString);
 }
+
 public class Connector : IConnector
 {
-    public Connector() { }
+    private Dictionary<string,ConnectionMultiplexer> Connections;
+    public Connector() 
+    {
+        Connections = new();
+    }
 
-    public ConnectionMultiplexer GetDatabaseAsync(string connectionString) =>
-        ConnectionMultiplexer.Connect(connectionString);
+    public void ConnectToDatabase(string connectionString)
+    {
+        if(!Connections.ContainsKey(connectionString))
+        {
+            Connections.Add(connectionString,ConnectionMultiplexer.Connect(connectionString));
+        }
+    }
+
+    public IDatabaseAsync GetDatabaseAsync(string connectionString) =>
+        Connections[connectionString].GetDatabase();
+    
 }

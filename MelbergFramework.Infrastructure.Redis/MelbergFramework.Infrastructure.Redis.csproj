@@ -4,7 +4,7 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<Version>1.0.2</Version>
 		<Authors>Joseph Melberg</Authors>
-		<Company>Inter</Company>
+        <PackageId>MelbergFramework.Infrastructure.Redis</PackageId>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>

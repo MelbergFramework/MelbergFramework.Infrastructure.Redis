@@ -11,24 +11,78 @@ public class MockDatabaseAsync : IDatabaseAsync
 
     public MockDatabaseAsync() { }
 
+    private void ApplyTime(RedisKey key)
+    {
+        if(_dictionary.TryGetValue(key, out var value ))
+        {
+            if(value.TimeOfDeath < DateTime.UtcNow)
+            {
+                _dictionary.Remove(key);
+            }
+        }
+    }
+
     private MockRedisValue GetResultEnforceExpectations(RedisKey key, bool shouldBeSet)
     {
+        ApplyTime(key);
         var result = _dictionary[key];
         if(result.IsSet && !shouldBeSet)
         {
             throw new Exception("Placeholder");
         }
+
         return result;
     }
 
-
-    public Task<RedisValue> StringGetAsync(RedisKey key, CommandFlags flags = CommandFlags.None)
+    public Task<bool> LockReleaseAsync(
+            RedisKey key,
+            RedisValue value,
+            CommandFlags flags = CommandFlags.None)
     {
+        ApplyTime(key);
+        var result = _dictionary[key];
+        result.IsLocked = false;
+        _dictionary[key] = result;
+
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> LockTakeAsync(
+            RedisKey key,
+            RedisValue value,
+            TimeSpan expiry,
+            CommandFlags flags = CommandFlags.None)
+    {
+        ApplyTime(key);
+        if(_dictionary.ContainsKey(key))
+        {
+            var currentvalue = _dictionary[key];
+            if(currentvalue.IsLocked)
+            {
+                return Task.FromResult(false);
+            }
+        }
+
+        _dictionary[key].IsLocked = true;
+        _dictionary[key].TimeOfDeath = DateTime.UtcNow.Add(expiry);
+
+
+        return Task.FromResult(true);
+    }
+
+
+    public Task<RedisValue> StringGetAsync(
+            RedisKey key,
+            CommandFlags flags = CommandFlags.None)
+    {
+        ApplyTime(key);
         var result = GetResultEnforceExpectations(key, false);
         return Task.FromResult(result.Values.First());
     }
 
-    public Task<RedisValue[]> StringGetAsync(RedisKey[] keys, CommandFlags flags = CommandFlags.None)
+    public Task<RedisValue[]> StringGetAsync(
+            RedisKey[] keys,
+            CommandFlags flags = CommandFlags.None)
     {
         return Task.FromResult( 
             keys
@@ -45,6 +99,7 @@ public class MockDatabaseAsync : IDatabaseAsync
             When when = When.Always,
             CommandFlags flags = CommandFlags.None)
     {
+        ApplyTime(key);
         if(when != When.Always)
         {
             throw new Exception("when must be Always");
@@ -67,6 +122,7 @@ public class MockDatabaseAsync : IDatabaseAsync
     {
         foreach(var value in values)
         {
+            ApplyTime(value.Key);
             await StringSetAsync(value.Key,value.Value);
         }
 
@@ -75,6 +131,7 @@ public class MockDatabaseAsync : IDatabaseAsync
 
     public Task<RedisValue[]> SetMembersAsync(RedisKey key, CommandFlags flags = CommandFlags.None)
     {
+        ApplyTime(key);
         var result = GetResultEnforceExpectations(key,true);
 
         return Task.FromResult(result.Values.ToArray());
@@ -82,7 +139,13 @@ public class MockDatabaseAsync : IDatabaseAsync
 
     public Task<bool> SetAddAsync(RedisKey key, RedisValue value, CommandFlags flags = CommandFlags.None)
     {
-        var result = GetResultEnforceExpectations(key,true);
+        ApplyTime(key);
+
+        if(!_dictionary.TryGetValue(key, out var result))
+        {
+            _dictionary[key] = new MockRedisValue(value){IsSet = true};
+            return Task.FromResult(true);
+        }
 
         result.Values.Add(value);
 
@@ -98,16 +161,21 @@ public class MockDatabaseAsync : IDatabaseAsync
 
     public Task<bool> KeyExpireAsync(RedisKey key, TimeSpan? expiry, CommandFlags flags = CommandFlags.None)
     {
+        ApplyTime(key);
+        _dictionary[key].TimeOfDeath = DateTime.UtcNow.Add(expiry ?? TimeSpan.Zero);
         return Task.FromResult(true);
     }
 
     public Task<bool> KeyExpireAsync(RedisKey key, DateTime? expiry, CommandFlags flags = CommandFlags.None)
     {
+        ApplyTime(key);
+        _dictionary[key].TimeOfDeath = expiry ?? DateTime.MaxValue;
         return Task.FromResult(true);
     }
 
     public Task<long> ListRightPushAsync(RedisKey key, RedisValue[] values, CommandFlags flags)
     {
+        ApplyTime(key);
         var result = GetResultEnforceExpectations(key,true);
 
         result.Values.AddRange(values);
@@ -120,6 +188,7 @@ public class MockDatabaseAsync : IDatabaseAsync
 
     public Task<RedisValue[]> ListRangeAsync(RedisKey key, long start = 0, long stop = -1, CommandFlags flags = CommandFlags.None)
     {
+        ApplyTime(key);
         var result = GetResultEnforceExpectations(key,true);
 
         return Task.FromResult(
@@ -423,16 +492,6 @@ public class MockDatabaseAsync : IDatabaseAsync
     }
 
     public Task<RedisValue> LockQueryAsync(RedisKey key, CommandFlags flags = CommandFlags.None)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> LockReleaseAsync(RedisKey key, RedisValue value, CommandFlags flags = CommandFlags.None)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> LockTakeAsync(RedisKey key, RedisValue value, TimeSpan expiry, CommandFlags flags = CommandFlags.None)
     {
         throw new NotImplementedException();
     }

@@ -5,9 +5,9 @@ namespace Demo.Infrastructure;
 
 public class TestContext : RedisContext
 {
-    public TestContext(IOptions<RedisConnectionOptions<RedisContext>> options,
+    public TestContext(IOptions<RedisConnectionOptions<TestContext>> options,
             IConnector connector) :
-        base(options, connector)
+        base(options.Value, connector)
     {
     }
 }

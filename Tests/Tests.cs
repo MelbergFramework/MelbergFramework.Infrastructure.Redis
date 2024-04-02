@@ -9,11 +9,20 @@ public class Tests : BaseTest
 {
     [Scenario]
     [TestMethod]
-    public async Task Test_adding()
+    public async Task Test_String_Set_And_Get()
     {
         await Runner.RunScenarioAsync(
             _ => Add_object(),
             _ => Object_is_there()
+            );
+    }
+    [Scenario]
+    [TestMethod]
+    public async Task Test_Set_Set_And_Get()
+    {
+        await Runner.RunScenarioAsync(
+            _ => Add_to_set(),
+            _ => Get_from_set()
             );
     }
 }

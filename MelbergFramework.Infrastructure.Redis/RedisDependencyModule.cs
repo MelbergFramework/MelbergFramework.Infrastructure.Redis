@@ -1,5 +1,6 @@
 using MelbergFramework.Core.HealthCheck;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace MelbergFramework.Infrastructure.Redis;
 
@@ -15,7 +16,7 @@ public static class RedisDependencyModule
             .ValidateDataAnnotations();
 
         services.AddTransient<TFrom, TTo>();
-        services.AddSingleton<TContext, TContext>();
+        services.AddSingleton<TContext,TContext>();
         services.AddSingleton<IConnector,Connector>();
         
         services.AddSingleton<IHealthCheck

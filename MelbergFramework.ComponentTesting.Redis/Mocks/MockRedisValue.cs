@@ -7,6 +7,7 @@ public class MockRedisValue
     public List<RedisValue> Values { get; set; }
     public bool IsSet { get; set; }
     public bool IsLocked { get; set; }
+    public DateTime TimeOfDeath {get; set;} = DateTime.MaxValue;
     public string Lease { get; set; } = string.Empty;
     public MockRedisValue(RedisValue value) 
     { 

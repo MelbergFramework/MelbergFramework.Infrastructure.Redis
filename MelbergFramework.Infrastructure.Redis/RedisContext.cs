@@ -1,17 +1,21 @@
 ﻿using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
-
 namespace MelbergFramework.Infrastructure.Redis;
+
 public class RedisContext 
 {
-    private ConnectionMultiplexer _connection;
+    private IConnector _connection;
+    private string _uri;
     public RedisContext(
-            IOptions<RedisConnectionOptions<RedisContext>> options,
+            IRedisConnectionOptions options,
             IConnector connector)
     {
-        _connection = connector.GetDatabaseAsync(options.Value.Uri);
+        connector.ConnectToDatabase(options.Uri);
+
+        _connection = connector;
+        _uri = options.Uri;
     }
 
-    public IDatabaseAsync DB => _connection.GetDatabase();
+    public IDatabaseAsync DB => _connection.GetDatabaseAsync(_uri);
 }

@@ -2,7 +2,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MelbergFramework.Infrastructure.Redis;
 
-public class RedisConnectionOptions<TContext>
+public interface IRedisConnectionOptions
+{
+    string Uri {get;}
+}
+
+public class RedisConnectionOptions<TContext> : IRedisConnectionOptions
     where TContext : RedisContext
 {
     public static string Section => $"{typeof(TContext).Name}";
