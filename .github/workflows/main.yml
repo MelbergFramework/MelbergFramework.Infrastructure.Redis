@@ -16,13 +16,13 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 8.0.x
     - name: Restore dependencies
       run: dotnet restore
     - name: Setup env
       uses: jwulf/add-env-vars-action@master
       with:
-        map: '{"vers": "6.2.${{ github.run_number }}</Version"}'
+        map: '{"vers": "8.0.${{ github.run_number }}</Version"}'
     - name: show
       run: echo $vers
     - name: Find and Replace
