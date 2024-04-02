@@ -4,7 +4,7 @@ Redis implementation for MelbergFramework.
 
 # Anatomy of Appsettings.json
 
-Use the RedisContext type name to relate the connection string in the ConnectionStrings section to the repository.
+Each Repository will use a class which inherits from RedisContext for its Context.  See the demo for a clear example.
 
 Use the [StackExchange Documentation](https://stackexchange.github.io/StackExchange.Redis/Configuration.html) to configure that connection string.
 
