@@ -1,4 +1,4 @@
-using MelbergFramework.Core.Health;
+using MelbergFramework.Core.HealthCheck;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MelbergFramework.Infrastructure.Redis;
