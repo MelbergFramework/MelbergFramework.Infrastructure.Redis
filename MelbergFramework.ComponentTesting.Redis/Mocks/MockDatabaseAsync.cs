@@ -5,7 +5,7 @@ namespace MelbergFramework.ComponentTesting.Redis.Mocks;
 
 public class MockDatabaseAsync : IDatabaseAsync
 {
-    private Dictionary<RedisKey,MockRedisValue> _dictionary = new();
+    public Dictionary<RedisKey,MockRedisValue> _dictionary = new();
 
     public IConnectionMultiplexer Multiplexer => throw new NotImplementedException();
 
@@ -41,6 +41,10 @@ public class MockDatabaseAsync : IDatabaseAsync
     {
         ApplyTime(key);
         var result = _dictionary[key];
+        if(result.Values.First() != value)
+        {
+            return Task.FromResult(false);
+        }
         result.IsLocked = false;
         _dictionary[key] = result;
 
@@ -62,6 +66,8 @@ public class MockDatabaseAsync : IDatabaseAsync
                 return Task.FromResult(false);
             }
         }
+        
+        _dictionary[key] = new MockRedisValue(value);
 
         _dictionary[key].IsLocked = true;
         _dictionary[key].TimeOfDeath = DateTime.UtcNow.Add(expiry);

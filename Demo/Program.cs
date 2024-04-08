@@ -8,7 +8,6 @@ internal class Program
     {
         var app = MelbergHost
                 .CreateHost<AppRegistrator>()
-                .AddControllers()
                 .Build();
         await app.Services.GetService<ITestRepository>().Demo();
     }

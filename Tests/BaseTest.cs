@@ -1,6 +1,7 @@
 using Demo;
 using MelbergFramework.Application;
 using MelbergFramework.ComponentTesting.Redis;
+using MelbergFramework.ComponentTesting.Redis.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TestContext = Demo.Infrastructure.TestContext;
 
@@ -47,5 +48,37 @@ public partial class BaseTest : BaseTestFrame
         {
             Assert.AreEqual((string)result,"a");
         }
+    }
+
+    public async Task Lock_thing()
+    {
+        var context = GetClass<TestContext>();
+        await context.DB.LockTakeAsync("lock", 1, TimeSpan.FromDays(1));
+    }
+
+    public async Task Verify_is_locked()
+    {
+        var context = GetClass<TestContext>();
+
+        var mockDB = (MockDatabaseAsync)context.DB;
+        var value = mockDB._dictionary["lock"];
+
+        Assert.IsTrue(value.IsLocked);
+    }
+
+    public async Task Unlock_thing_sucessful()
+    {
+        var context = GetClass<TestContext>();
+        await context.DB.LockReleaseAsync("lock",1);
+    }
+
+    public async Task Verify_is_unlocked()
+    {
+        var context = GetClass<TestContext>();
+
+        var mockDB = (MockDatabaseAsync)context.DB;
+        var value = mockDB._dictionary["lock"];
+
+        Assert.IsTrue(!value.IsLocked);
     }
 }

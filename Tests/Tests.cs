@@ -25,4 +25,17 @@ public class Tests : BaseTest
             _ => Get_from_set()
             );
     }
+
+    [Scenario]
+    [TestMethod]
+    public async Task Test_locking()
+    {
+        await Runner.RunScenarioAsync(
+            _ => Lock_thing(),
+            _ => Verify_is_locked(),
+            _ => Unlock_thing_sucessful(),
+            _ => Verify_is_unlocked()
+                );
+
+    }
 }
