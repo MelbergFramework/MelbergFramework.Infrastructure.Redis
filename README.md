@@ -11,6 +11,6 @@ Use the [StackExchange Documentation](https://stackexchange.github.io/StackExcha
 # Notes
 
 ## General Execution
-This project requires dotnet 6 sdk to run (install link [here](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)).
+This project requires dotnet 8 sdk to run (install link [here](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)).
 ## How to run a Redis Server
 Docker installation guide for redis [here](https://github.com/bitnami/containers/blob/main/bitnami/redis/README.md).
