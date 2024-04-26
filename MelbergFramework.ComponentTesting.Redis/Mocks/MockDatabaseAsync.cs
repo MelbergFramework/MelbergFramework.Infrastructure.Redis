@@ -25,6 +25,10 @@ public class MockDatabaseAsync : IDatabaseAsync
     private MockRedisValue GetResultEnforceExpectations(RedisKey key, bool shouldBeSet)
     {
         ApplyTime(key);
+        if(!_dictionary.ContainsKey(key))
+        {
+            return new MockRedisValue(RedisValue.Null);
+        }
         var result = _dictionary[key];
         if(result.IsSet && !shouldBeSet)
         {

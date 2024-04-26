@@ -9,6 +9,14 @@ public class Tests : BaseTest
 {
     [Scenario]
     [TestMethod]
+    public async Task Test_not_found_is_ok()
+    {
+        await Runner.RunScenarioAsync(
+            _ => Object_not_there_is_null()
+            );
+    }
+    [Scenario]
+    [TestMethod]
     public async Task Test_String_Set_And_Get()
     {
         await Runner.RunScenarioAsync(

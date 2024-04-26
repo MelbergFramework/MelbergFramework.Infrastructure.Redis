@@ -50,6 +50,13 @@ public partial class BaseTest : BaseTestFrame
         }
     }
 
+    public async Task Object_not_there_is_null()
+    {
+        var context = GetClass<TestContext>();
+        var result = await context.DB.StringGetAsync("somethingthatdoesntexist");
+        Assert.IsTrue(result.IsNull);
+    }
+
     public async Task Lock_thing()
     {
         var context = GetClass<TestContext>();
