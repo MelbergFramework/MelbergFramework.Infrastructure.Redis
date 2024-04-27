@@ -22,17 +22,17 @@ public class MockDatabaseAsync : IDatabaseAsync
         }
     }
 
-    private MockRedisValue GetResultEnforceExpectations(RedisKey key, bool shouldBeSet)
+    private MockRedisValue GetResultEnforceExpectations(RedisKey key, MockRedisType type)
     {
         ApplyTime(key);
         if(!_dictionary.ContainsKey(key))
         {
-            return new MockRedisValue(RedisValue.Null);
+            return new MockRedisValue(RedisValue.Null,MockRedisType.None);
         }
         var result = _dictionary[key];
-        if(result.IsSet && !shouldBeSet)
+        if(result.Type != type)
         {
-            throw new Exception("Placeholder");
+            throw new Exception("Incorrect redis type");
         }
 
         return result;
@@ -71,7 +71,7 @@ public class MockDatabaseAsync : IDatabaseAsync
             }
         }
         
-        _dictionary[key] = new MockRedisValue(value);
+        _dictionary[key] = new MockRedisValue(value,MockRedisType.Single);
 
         _dictionary[key].IsLocked = true;
         _dictionary[key].TimeOfDeath = DateTime.UtcNow.Add(expiry);
@@ -86,7 +86,7 @@ public class MockDatabaseAsync : IDatabaseAsync
             CommandFlags flags = CommandFlags.None)
     {
         ApplyTime(key);
-        var result = GetResultEnforceExpectations(key, false);
+        var result = GetResultEnforceExpectations(key, MockRedisType.Single);
         return Task.FromResult(result.Values.First());
     }
 
@@ -96,7 +96,7 @@ public class MockDatabaseAsync : IDatabaseAsync
     {
         return Task.FromResult( 
             keys
-                .Select(_ => GetResultEnforceExpectations(_, false)
+                .Select(_ => GetResultEnforceExpectations(_, MockRedisType.Single)
                                 .Values
                                 .First())
                 .ToArray());
@@ -120,7 +120,7 @@ public class MockDatabaseAsync : IDatabaseAsync
             throw new Exception("flags must be None");
         }
 
-        _dictionary[key] = new MockRedisValue(value);
+        _dictionary[key] = new MockRedisValue(value, MockRedisType.Single);
         return Task.FromResult(true);
     }
 
@@ -142,7 +142,7 @@ public class MockDatabaseAsync : IDatabaseAsync
     public Task<RedisValue[]> SetMembersAsync(RedisKey key, CommandFlags flags = CommandFlags.None)
     {
         ApplyTime(key);
-        var result = GetResultEnforceExpectations(key,true);
+        var result = GetResultEnforceExpectations(key,MockRedisType.Set);
 
         return Task.FromResult(result.Values.ToArray());
     }
@@ -153,7 +153,7 @@ public class MockDatabaseAsync : IDatabaseAsync
 
         if(!_dictionary.TryGetValue(key, out var result))
         {
-            _dictionary[key] = new MockRedisValue(value){IsSet = true};
+            _dictionary[key] = new MockRedisValue(value, MockRedisType.Set);
             return Task.FromResult(true);
         }
 
@@ -186,7 +186,7 @@ public class MockDatabaseAsync : IDatabaseAsync
     public Task<long> ListRightPushAsync(RedisKey key, RedisValue[] values, CommandFlags flags)
     {
         ApplyTime(key);
-        var result = GetResultEnforceExpectations(key,true);
+        var result = GetResultEnforceExpectations(key,MockRedisType.List);
 
         result.Values.AddRange(values);
 
@@ -199,13 +199,15 @@ public class MockDatabaseAsync : IDatabaseAsync
     public Task<RedisValue[]> ListRangeAsync(RedisKey key, long start = 0, long stop = -1, CommandFlags flags = CommandFlags.None)
     {
         ApplyTime(key);
-        var result = GetResultEnforceExpectations(key,true);
+        var result = GetResultEnforceExpectations(key,MockRedisType.List);
+
+        var returned = new List<RedisValue>();
 
         return Task.FromResult(
-                result
-                    .Values
-                    .GetRange((int)start, (int)stop)
-                    .ToArray());
+            result
+                .Values
+                .Where((value, index) => start <= index && (index <= stop) || stop == -1)
+                .ToArray());
     }
 
 
@@ -977,4 +979,5 @@ public class MockDatabaseAsync : IDatabaseAsync
     public T Wait<T>(Task<T> task) { throw new NotImplementedException(); }
 
     public void WaitAll(params Task[] tasks) { throw new NotImplementedException(); }
+
 }

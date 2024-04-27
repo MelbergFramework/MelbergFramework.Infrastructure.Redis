@@ -79,6 +79,27 @@ public partial class BaseTest : BaseTestFrame
         await context.DB.LockReleaseAsync("lock",1);
     }
 
+    public async Task Verify_range()
+    {
+        var context = GetClass<TestContext>();
+        for(int i = 0; i < 10; i++)
+        {
+            await context.DB.ListRightPushAsync("h",$"{i}");
+        }
+
+        var result = await context.DB.ListRangeAsync("h");
+
+        Assert.AreEqual(10,result.Count());
+
+        result = await context.DB.ListRangeAsync("h",0,1);
+
+        Assert.AreEqual(2,result.Count());
+
+        result = await context.DB.ListRangeAsync("h",1,1);
+
+        Assert.AreEqual(1,result.Count());
+    }
+
     public async Task Verify_is_unlocked()
     {
         var context = GetClass<TestContext>();
