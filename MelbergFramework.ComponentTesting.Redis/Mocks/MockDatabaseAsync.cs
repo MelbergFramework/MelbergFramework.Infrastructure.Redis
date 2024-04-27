@@ -27,7 +27,7 @@ public class MockDatabaseAsync : IDatabaseAsync
         ApplyTime(key);
         if(!_dictionary.ContainsKey(key))
         {
-            return new MockRedisValue(RedisValue.Null,MockRedisType.None);
+            return new MockRedisValue(RedisValue.Null,type);
         }
         var result = _dictionary[key];
         if(result.Type != type)
@@ -183,17 +183,42 @@ public class MockDatabaseAsync : IDatabaseAsync
         return Task.FromResult(true);
     }
 
-    public Task<long> ListRightPushAsync(RedisKey key, RedisValue[] values, CommandFlags flags)
+    public Task<long> ListRightPushAsync(RedisKey key, RedisValue value, When when = When.Always, CommandFlags flags = CommandFlags.None)
     {
         ApplyTime(key);
         var result = GetResultEnforceExpectations(key,MockRedisType.List);
+
+        if(result.Values.Count() == 1 && result.Values.First().IsNull)
+        {
+            result.Values.Clear();    
+        }
+        result.Values.Add(value);
+
+        _dictionary[key] = result;
+
+        return Task.FromResult((long)result.Values.Count);
+    }
+
+    public Task<long> ListRightPushAsync(RedisKey key, RedisValue[] values, When when = When.Always, CommandFlags flags = CommandFlags.None)
+    {
+        ApplyTime(key);
+        var result = GetResultEnforceExpectations(key,MockRedisType.List);
+        if(result.Values.Count() == 1 && result.Values.First().IsNull)
+        {
+            result.Values.Clear();    
+        }
 
         result.Values.AddRange(values);
 
         _dictionary[key] = result;
 
-        return Task.FromResult((long)0);
+        return Task.FromResult((long)result.Values.Count);
 
+    }
+
+    Task<long> IDatabaseAsync.ListRightPushAsync(RedisKey key, RedisValue[] values, CommandFlags flags)
+    {
+        return ListRightPushAsync(key, values, flags: flags);
     }
 
     public Task<RedisValue[]> ListRangeAsync(RedisKey key, long start = 0, long stop = -1, CommandFlags flags = CommandFlags.None)
@@ -257,40 +282,22 @@ public class MockDatabaseAsync : IDatabaseAsync
 
     public Task<double> HashIncrementAsync(RedisKey key, RedisValue hashField, double value, CommandFlags flags = CommandFlags.None) { throw new NotImplementedException(); }
 
-    public Task<RedisValue[]> HashKeysAsync(RedisKey key, CommandFlags flags = CommandFlags.None)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<RedisValue[]> HashKeysAsync(RedisKey key, CommandFlags flags = CommandFlags.None) { throw new NotImplementedException(); }
 
-    public Task<long> HashLengthAsync(RedisKey key, CommandFlags flags = CommandFlags.None)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<long> HashLengthAsync(RedisKey key, CommandFlags flags = CommandFlags.None) { throw new NotImplementedException(); }
 
     public IAsyncEnumerable<HashEntry> HashScanAsync(RedisKey key, RedisValue pattern = default, int pageSize = 250, long cursor = 0, int pageOffset = 0, CommandFlags flags = CommandFlags.None)
     {
         throw new NotImplementedException();
     }
 
-    public Task HashSetAsync(RedisKey key, HashEntry[] hashFields, CommandFlags flags = CommandFlags.None)
-    {
-        throw new NotImplementedException();
-    }
+    public Task HashSetAsync(RedisKey key, HashEntry[] hashFields, CommandFlags flags = CommandFlags.None) { throw new NotImplementedException(); }
 
-    public Task<bool> HashSetAsync(RedisKey key, RedisValue hashField, RedisValue value, When when = When.Always, CommandFlags flags = CommandFlags.None)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<bool> HashSetAsync(RedisKey key, RedisValue hashField, RedisValue value, When when = When.Always, CommandFlags flags = CommandFlags.None) { throw new NotImplementedException(); }
 
-    public Task<long> HashStringLengthAsync(RedisKey key, RedisValue hashField, CommandFlags flags = CommandFlags.None)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<long> HashStringLengthAsync(RedisKey key, RedisValue hashField, CommandFlags flags = CommandFlags.None) { throw new NotImplementedException(); }
 
-    public Task<RedisValue[]> HashValuesAsync(RedisKey key, CommandFlags flags = CommandFlags.None)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<RedisValue[]> HashValuesAsync(RedisKey key, CommandFlags flags = CommandFlags.None) { throw new NotImplementedException(); }
 
     public Task<bool> HyperLogLogAddAsync(RedisKey key, RedisValue value, CommandFlags flags = CommandFlags.None)
     {
@@ -457,7 +464,6 @@ public class MockDatabaseAsync : IDatabaseAsync
         throw new NotImplementedException();
     }
 
-
     public Task<long> ListRemoveAsync(RedisKey key, RedisValue value, long count = 0, CommandFlags flags = CommandFlags.None)
     {
         throw new NotImplementedException();
@@ -474,16 +480,6 @@ public class MockDatabaseAsync : IDatabaseAsync
     }
 
     public Task<RedisValue> ListRightPopLeftPushAsync(RedisKey source, RedisKey destination, CommandFlags flags = CommandFlags.None)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<long> ListRightPushAsync(RedisKey key, RedisValue value, When when = When.Always, CommandFlags flags = CommandFlags.None)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<long> ListRightPushAsync(RedisKey key, RedisValue[] values, When when = When.Always, CommandFlags flags = CommandFlags.None)
     {
         throw new NotImplementedException();
     }

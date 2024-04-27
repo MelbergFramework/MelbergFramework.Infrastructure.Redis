@@ -86,7 +86,6 @@ public partial class BaseTest : BaseTestFrame
         {
             await context.DB.ListRightPushAsync("h",$"{i}");
         }
-
         var result = await context.DB.ListRangeAsync("h");
 
         Assert.AreEqual(10,result.Count());

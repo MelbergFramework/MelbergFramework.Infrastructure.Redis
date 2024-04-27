@@ -44,6 +44,14 @@ public class Tests : BaseTest
             _ => Unlock_thing_sucessful(),
             _ => Verify_is_unlocked()
                 );
+    }
 
+    [Scenario]
+    [TestMethod]
+    public async Task Test_lists()
+    {
+        await Runner.RunScenarioAsync(
+            _ => Verify_range()
+                );
     }
 }
