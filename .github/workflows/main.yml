@@ -2,7 +2,7 @@ name: Pack And Push
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   workflow_dispatch:
 env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
