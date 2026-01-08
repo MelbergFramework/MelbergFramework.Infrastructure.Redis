@@ -16,6 +16,7 @@
 		<Authors>Joseph Melberg</Authors>
         <PackageId>MelbergFramework.ComponentTesting.Redis</PackageId>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<IsPackable>true</IsPackable>
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
 	</PropertyGroup>
