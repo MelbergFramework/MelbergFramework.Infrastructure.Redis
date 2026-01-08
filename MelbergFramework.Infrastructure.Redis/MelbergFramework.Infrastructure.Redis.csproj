@@ -6,6 +6,7 @@
 		<Authors>Joseph Melberg</Authors>
         <PackageId>MelbergFramework.Infrastructure.Redis</PackageId>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<IsPackable>true</IsPackable>
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
 	</PropertyGroup>
@@ -19,3 +20,4 @@
 		<PackageReference Include="StackExchange.Redis" Version="2.10.1" />
 	</ItemGroup>
 </Project>
+
