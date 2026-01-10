@@ -14,7 +14,7 @@ public class RedisFixture : IAsyncLifetime
     {
         // Configure the Redis container; pin the image version to "redis:7.0" for stability.
         RedisContainer = new RedisBuilder()
-            .WithImage("redis:7.0")
+            .WithImage("redis:8.4")
             .Build();
     }
     // Called once before any tests run.
